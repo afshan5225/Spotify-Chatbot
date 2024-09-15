@@ -1,0 +1,64 @@
+from flask import Flask, render_template, request
+import pandas as pd
+
+app = Flask(__name__)
+
+# Load your dataset (make sure to replace this with the actual path to your CSV file)
+data = pd.read_csv('your_music_dataset.csv')
+
+# Define the chatbot logic here (same as your previous Python logic)
+
+def get_music_by_artist(artist):
+    return data[data['artist'].str.lower() == artist.lower()]
+
+def get_music_by_genre(genre):
+    return data[data['genre'].str.lower() == genre.lower()]
+
+def get_music_by_name(name):
+    song_info = data[data['track'].str.lower() == name.lower()]
+    return song_info
+
+def get_similar_music(name):
+    song_info = get_music_by_name(name)
+    if not song_info.empty:
+        similar_genre = song_info.iloc[0]['genre']
+        similar_songs = get_music_by_genre(similar_genre)
+        top_songs = similar_songs.sort_values(by='popularity', ascending=False).head(10)
+        return top_songs
+    return None
+
+def respond_to_query(query):
+    if query.startswith('genre'):
+        genre = query.split(' ', 1)[1]
+        return get_music_by_genre(genre).to_string(index=False)
+    elif query.startswith('artist'):
+        artist = query.split(' ', 1)[1]
+        return get_music_by_artist(artist).to_string(index=False)
+    elif query.startswith('music'):
+        music_name = query.split(' ', 1)[1]
+        info = get_music_by_name(music_name)
+        if not info.empty:
+            return f"The song '{info.iloc[0]['track']}' is by '{info.iloc[0]['artist']}' and belongs to the genre '{info.iloc[0]['genre']}'."
+        return "Music not found."
+    elif query.startswith('similar'):
+        music_name = query.split(' ', 1)[1]
+        similar_songs = get_similar_music(music_name)
+        if similar_songs is not None:
+            return similar_songs.to_string(index=False)
+        return "No similar music found."
+    else:
+        return "Sorry, I didn't understand that."
+
+@app.route("/", methods=["GET", "POST"])
+def chatbot():
+    response = ""
+    if request.method == "POST":
+        user_input = request.form["user_input"]
+        if user_input.lower() == "quit":
+            response = "Goodbye! Enjoy your music!"
+        else:
+            response = respond_to_query(user_input)
+    return render_template("index.html", response=response)
+
+if __name__ == "__main__":
+    app.run(debug=True)

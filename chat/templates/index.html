@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .video-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+        }
+
+        .content h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .input {
+            position: relative;
+            font-size: 1.5em;
+            background: linear-gradient(21deg, #10abff, #1beabd);
+            padding: 3px;
+            display: inline-block;
+            border-radius: 9999em;
+        }
+
+        .input input {
+            position: relative;
+            display: inherit;
+            border-radius: inherit;
+            margin: 0;
+            border: none;
+            outline: none;
+            padding: 0 .325em;
+            z-index: 1;
+            font-family: inherit;
+            line-height: inherit;
+            color: #2e3750;
+            min-width: 12em;
+            font-size: 16px;
+        }
+
+        .input input:focus + span {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .input span {
+            transform: scale(.993, .94);
+            transition: transform .5s, opacity .25s;
+            opacity: 0;
+            position: absolute;
+            z-index: 0;
+            margin: 4px;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            box-shadow: inset 0 0 0 3px #fff,
+                        0 0 0 4px #fff,
+                        3px -3px 30px #1beabd,
+                        -3px 3px 30px #10abff;
+        }
+
+        .search-bar::placeholder {
+            color: #dcdcdc;
+        }
+
+        html::after {
+            content: '';
+            height: 3px;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .submit-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745; /* Green color */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        .result-table {
+            margin-top: 20px;
+            color: white;
+            text-align: left;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-bg">
+        <video autoplay loop muted>
+            <source src="{{ url_for('static', filename='back.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div class="content">
+        <h1>Spotify Chatbot</h1>
+        <form method="post">
+            <span class="input">
+                <input type="text" name="user_input" class="search-bar" placeholder="Hello, how shall I help you?">
+                <span></span>    
+            </span>
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+        <div>
+            <p>{{ response }}</p>
+        </div>
+        {% if result_html %}
+            <div class="result-table">
+                {{ result_html|safe }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
